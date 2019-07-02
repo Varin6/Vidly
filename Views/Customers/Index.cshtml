@@ -12,7 +12,8 @@
     <table class="table">
         <thead>
         <tr>
-            <th scope="col">Customer</th>
+            <th>Customer</th>
+            <th>Membership Type</th>
         </tr>
         </thead>
         <tbody>
@@ -21,7 +22,11 @@
         {
             <tr>
                 <td>
-                    <a href="/Customers/Details/@customer.Id">@customer.Name</a>
+                   @* <a href="/Customers/Details/@customer.Id">@customer.Name</a>*@
+                    @Html.ActionLink(customer.Name, "Details", "Customers", new {id=customer.Id}, null)
+                </td>
+                <td>
+                    @customer.MembershipType.Name
                 </td>
             </tr>
         }

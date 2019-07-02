@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -8,18 +9,29 @@ using Vidly.ViewModels;
 
 namespace Vidly.Controllers
 {
+
     public class CustomersController : Controller
     {
+
+        private ApplicationDbContext _context;
+        
+        public CustomersController()
+        {
+            _context = new ApplicationDbContext();
+        }
+
+
+        protected override void Dispose(bool disposing)
+        {
+            _context.Dispose();
+        }
+
         // GET: Customer
         public ActionResult Index()
         {
 
-            var customers = new List<Customer>
-            {
-                new Customer {Id = 1, Name = "Aaron Peterson"},
-                new Customer {Id = 2, Name = "Kamil Kuklinski"},
-            };
-
+            var customers = _context.Customers.Include(c => c.MembershipType).ToList();
+            
             var viewModel = new AllCustomersViewModel
             {
                 Customers = customers
@@ -39,28 +51,22 @@ namespace Vidly.Controllers
 
                 return RedirectToAction("Index");
             }
-            
+
+            var customer = _context.Customers.Include(c => c.MembershipType).SingleOrDefault(c => c.Id == id);
 
 
-            if (id.Value == 1)
+            if (customer == null)
             {
-                var customer = new CustomerDetailsViewModel {Id = 1, Name = "Aaron Peterson"};
-
-                return View(customer);
-
+                return HttpNotFound();
             }
 
-            if (id.Value == 2)
+            return View(new CustomerDetailsViewModel()
             {
-
-                var customer = new CustomerDetailsViewModel {Id = 2, Name = "Kamil Kuklinski"};
-
-                return View(customer);
-            }
-
-
-            return HttpNotFound();
-
+                Id = customer.Id,
+                Name = customer.Name,
+                Birthdate = customer.Birthdate,
+                MembershipType = customer.MembershipType
+            });
 
 
 
